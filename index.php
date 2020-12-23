@@ -22,9 +22,11 @@ if (isset($_GET['code']) && strlen($_GET['code']) > 0) {
 
     // retrieve the data from the database
     $data = mysqli_fetch_assoc($query);
+    
+    $data['hit_count']++; 
 
     // update the hit coutner in the database
-    mysqli_query($conn, "UPDATE short_links SET count='" . ($data['count']) + 1 . "' WHERE id='" . ($data['id']) . "'");
+    mysqli_query($conn, "UPDATE short_links SET hit_count='".( $data['hit_count'] )."' WHERE id='".( $data['id'] )."'");
 
     /* ADD ANY EXTRA STUFF HERE, IF DESIRED */
 
@@ -47,10 +49,10 @@ if (isset($_GET['code']) && strlen($_GET['code']) > 0) {
   <link rel="icon" type="image/png" href="<?php echo SITE_LOGO; ?>">
 
   <!-- Bootstrap core CSS -->
-  <link href="<?php echo SITE_ADDR; ?>/assets/vendor/bootstrap/css/bootstrap.min.css?v=5.0.0beta" rel="stylesheet">
+  <link rel="stylesheet" href="<?php echo SITE_ADDR; ?>/assets/vendor/bootstrap/css/bootstrap.min.css">
 
   <!-- Custom styles for this template -->
-  <!-- <link href="<?php echo SITE_ADDR; ?>/assets/css/main.css" rel="stylesheet"> -->
+  <!-- <link rel="stylesheet" href="<?php echo SITE_ADDR; ?>/assets/css/main.css"> -->
   <style>
     <?php 
       // load the 'main.css' stylesheet inline
@@ -59,8 +61,13 @@ if (isset($_GET['code']) && strlen($_GET['code']) > 0) {
   </style>
   <script>
     var SITE_ADDR = '<?php echo SITE_ADDR; ?>';
+    
     // ready the sites javascript for use after the page has loaded
     window.onload = function() {
+      
+      // select the url text box on page load
+      $("#url").focus();
+
       // process the form submission using javascript
       $("#form").submit(function(event) {
         $("#copy").hide();
@@ -69,13 +76,14 @@ if (isset($_GET['code']) && strlen($_GET['code']) > 0) {
         var url = $("#url").val();
         if ($.trim(url) != '') {
           // submit all of the required data via post to the processing script
-          $.post(SITE_ADDR + "/process.php", {
+          $.post("./process.php", {
             url: url
           }, function(data) {
             // process the returned data from the post
             if (data.substring(0, 7) == 'http://' || data.substring(0, 8) == 'https://') {
               $("#url").val(data).focus();
               $("#copy").show();
+
               // display a success message to the user
               $("#message").html('enjoy your short url!');
             } else
@@ -90,8 +98,10 @@ if (isset($_GET['code']) && strlen($_GET['code']) > 0) {
         return false;
       });
 
-      // select the text box on page load
-      $("#url").focus();
+      // remove the 'copy' button after the url is changed
+      $("#url").on('input', function(){
+        $("#copy").hide();
+      });
 
       // copy the short url to clipboard
       $("#copy").click(function() {

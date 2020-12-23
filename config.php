@@ -2,7 +2,7 @@
 
 /*********************************************************************
  * fii.sh - url shortener
- *  v0.1.0 - simple url shortener
+ *  v0.1.1 - simple url shortener
  * 
  * ---
  * Demo:    https://fii.sh
